@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CareerWebsiteApplication<NCKH-Career-website>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.be.CareerWebsiteApplication",
+            "projectName": "NCKH-Career-website",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": "-Dfile.encoding=utf8"
+        }
+    ]
+}

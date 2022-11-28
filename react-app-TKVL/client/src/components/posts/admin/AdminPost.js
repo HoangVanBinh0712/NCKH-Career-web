@@ -1,0 +1,113 @@
+import { useContext, useEffect, useState } from "react";
+import { EmployerPostContext } from "../../../contexts/EmployerPostContext";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Spiner from "react-bootstrap/Spinner";
+import Toast from "react-bootstrap/Toast";
+import { MDBRadio, MDBBtnGroup } from "mdb-react-ui-kit";
+import AdminSinglePost from "./AdminSinglePost";
+import PostPaging from "../../PostPaging";
+import NoPostFound from "../../NoPostFound";
+
+const AdminPost = () => {
+  const {
+    postState: { posts, postLoading, currentPage, totalPage  },
+    getAdminPosts,
+    showToast: { show, message, type },
+    setShowToast,
+    adminDeletePost,
+    acceptPost
+  } = useContext(EmployerPostContext);
+
+  const [accepted, setAccepted] = useState(true);
+
+  useEffect(() => {
+    getAdminPosts("page=" + 1 + "&limit=" + 9,true);
+  }, []);
+
+
+  const handlePageChange = (pageNumber, acc) => {
+    if (acc === undefined) acc = accepted;
+    let key = "page=" + pageNumber + "&limit=" + 9;
+
+    console.log(key);
+
+    getAdminPosts(key, acc);
+  };
+
+  let body = null;
+
+  if (postLoading) {
+    body = (
+      <div className="d-flex justify-content-center mt-2">
+        <Spiner animation="border" variant="info" />
+      </div>
+    );
+  } else if (posts.length === 0) {
+    body = <NoPostFound/>
+  } else {
+    body = (
+      <>
+        <div
+          className="mt-2 container"
+          style={{ justifyContent: "center", display: "flex" }}
+        >
+          <MDBBtnGroup>
+            <MDBRadio
+              btn
+              btnColor="primary"
+              id="btn-radio"
+              name="options"
+              wrapperTag="span"
+              label="Accepted"
+              onClick={() => {
+                setAccepted(true);
+                handlePageChange(1, true);              }}
+            />
+            <MDBRadio
+              btn
+              btnColor="secondary"
+              id="btn-radio2"
+              name="options"
+              wrapperClass="mx-2"
+              wrapperTag="span"
+              label="Unaccepted"
+              onClick={() => {
+                setAccepted(false);
+                handlePageChange(1, false);              }}
+            />
+          </MDBBtnGroup>
+        </div>
+        <Row className="row-cols-1 row-cols-md-3 g-4 mx-auto mt-3 container main-row">
+          {posts.map((post) => (
+            <Col key={post.id} className="my-2 ">
+              <AdminSinglePost post={post} adminDeletePost={adminDeletePost} acceptPost={acceptPost}/>
+            </Col>
+          ))}
+        </Row>
+        <PostPaging handlePageChange={handlePageChange} currentPage={currentPage} totalPage={totalPage}/>
+
+        <Toast
+          show={show}
+          style={{ position: "fixed", top: "20%", right: "10px" }}
+          className={`bg-${type} text-white`}
+          onClose={setShowToast.bind(this, {
+            show: false,
+            message: "",
+            type: null,
+          })}
+          delay={3000}
+          autohide
+        >
+          <Toast.Body>
+            <strong>{message}</strong>
+          </Toast.Body>
+        </Toast>
+      </>
+    );
+  }
+
+  return body;
+};
+
+export default AdminPost;
